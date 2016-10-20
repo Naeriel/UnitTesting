@@ -22,38 +22,58 @@ class TestHtmlParser():
     def test_extract_links_success(self):
         # Configure the mock
         self._fetcher_mock.retrieve.return_value = "<a href='/index.html'>index.html</a>"
-
+        
         # Call the method to test
         extracted_links = self._parser.extract_links()
         
         # Check the assertions
         assert len(extracted_links) == 1
         assert extracted_links[0] == "/index.html"
-    
-    def test_invalid_document(self):
-        # Configure the mock
-        self._fetcher_mock.retrieve.return_value = ""
-
-        # Call the method to test
-        extracted_links = self._parser.extract_links()
         
-        # Check the assertions
-        assert len(extracted_links) == 0     
-    
-    def test_no_link(self):
+    def test_extract_links_no_links(self):
         # Configure the mock
-        self._fetcher_mock.retrieve.return_value = "<a>index.html</a>"
-
+        self._fetcher_mock.retrieve.return_value = "<html></html>"
+        
         # Call the method to test
         extracted_links = self._parser.extract_links()
         
         # Check the assertions
         assert len(extracted_links) == 0
         
-    def test_errors(self):
+    def test_extract_links_invalid_html(self):
+        # Configure the mock
+        self._fetcher_mock.retrieve.return_value = "<html</html"
+        
+        # Call the method to test
+        extracted_links = self._parser.extract_links()
+        
+        # Check the assertions
+        assert len(extracted_links) == 0
+        
+    def test_extract_links_empty_document(self):
+        # Configure the mock
+        self._fetcher_mock.retrieve.return_value = ""
+        
+        # Call the method to test
+        extracted_links = self._parser.extract_links()
+        
+        # Check the assertions
+        assert len(extracted_links) == 0
+        
+    def test_extract_links_fetcher_error(self):
         # Configure the mock
         self._fetcher_mock.retrieve.side_effect = FetcherError
-
-        # Call the method to test
+        
+        # Call the method to test and check for the expected error
         with pytest.raises(HtmlParserError):
             self._parser.extract_links()
+    
+    def test_href_not_found(self):
+        # Configure the mock
+        self._fetcher_mock.retrieve.return_value = "<a>index.html</a>"
+        
+        # Call the method to test
+        extracted_links = self._parser.extract_links()
+        
+        # Check the assertions
+        assert len(extracted_links) == 0
