@@ -29,6 +29,3 @@ class TestHtmlParser():
         # Check the assertions
         assert len(extracted_links) == 1
         assert extracted_links[0] == "/index.html"
-    
-    def test_invalid_document(self):
-        
